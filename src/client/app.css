@@ -6,3 +6,10 @@ body {
   text-align: center;
   margin: auto;
 }
+ul {
+  list-style: none;
+}
+ul li {
+  display: inline-block;
+  margin-left: 10px;
+}
