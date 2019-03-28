@@ -1,10 +1,21 @@
 const path = require('path');
+const fs = require('fs');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 const outputDirectory = 'dist';
+var nodeModules = {};
+const { NODE_ENV = 'production' } = process.env;
 
-module.exports = {
+fs.readdirSync('node_modules')
+  .filter(function (x) {
+    return ['.bin'].indexOf(x) === -1;
+  })
+  .forEach(function (mod) {
+    nodeModules[mod] = 'commonjs ' + mod;
+  });
+
+const clientConfig = {
   entry: './src/client/index.tsx',
   output: {
     path: path.join(__dirname, outputDirectory),
@@ -52,3 +63,27 @@ module.exports = {
     })
   ]
 };
+const serverConfig = {
+  entry: './src/server/server.ts',
+  output: {
+    path: path.join(__dirname, outputDirectory),
+    filename: 'server.js',
+  },
+  resolve: {
+    // Add '.ts' and '.tsx' as a resolvable extension.
+    extensions: ['.ts', '.tsx', '.js', 'html'],
+  },
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        loader: 'awesome-typescript-loader',
+        exclude: /node_modules/,
+      },
+    ]
+  },
+  target: 'node',
+  externals: nodeModules,
+};
+
+module.exports = [clientConfig, serverConfig ];
